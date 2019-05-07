@@ -8,7 +8,11 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_ram_write(struct cpu *cpu, unsigned char adrs, unsigned char value){
+    cpu->ram[adrs] = value;
+}
+
+void cpu_load(struct cpu *cpu, char *load_program)
 {
     char data[DATA_LEN] = {
         // From print8.ls8
@@ -20,13 +24,43 @@ void cpu_load(struct cpu *cpu)
         0b00000001  // HLT
     };
     
-    int address = 0;
-    
-    for (int i = 0; i < DATA_LEN; i++) {
-        cpu->ram[address++] = data[i];
-    }
+   int address = 0;
+//
+//    for (int i = 0; i < DATA_LEN; i++) {
+//        cpu->ram[address++] = data[i];
+//    }
     
     // TODO: Replace this with something less hard-coded
+    
+    FILE *fp;
+    char line[1024];
+ 
+    
+    fp = fopen(load_program, "r");
+    
+    if (fp == NULL) {
+        fprintf(stderr,"comp: error opening file\n");
+        exit(2);
+    }
+    
+    while (fgets(line, 1024, fp) != NULL) {
+        char *endptr;
+        
+        unsigned int val = strtoul(line, &endptr, 2) & 0xFF ;
+        
+        if (endptr == line) {
+            //printf("Found no digits\n");
+            continue;
+        }
+        
+        //printf("%u\n", val);
+        
+        cpu_ram_write(cpu, address ++, val) ;
+    }
+    
+    fclose(fp);
+    
+    
 }
 
 /**
@@ -98,6 +132,4 @@ void cpu_init(struct cpu *cpu)
 }
 
 
-void cpu_ram_write(struct cpu *cpu, unsigned char adrs, unsigned char value){
-    cpu->ram[adrs] = value;
-}
+

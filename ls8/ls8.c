@@ -4,12 +4,21 @@
 /**
  * Main
  */
-int main(void)
+int main(int argc, char *argv[])
 {
+    
+    if (argc != 2) {
+        fprintf(stderr, "usage: comp filename\n");
+        return 1;
+    }
+        // the path to the command line that user entered
+    char *load_program = argv[1] ; 
+    
+    
   struct cpu cpu;
 
   cpu_init(&cpu);
-  cpu_load(&cpu);
+  cpu_load(&cpu, load_program);
   cpu_run(&cpu);
 
   return 0;
