@@ -148,6 +148,12 @@ void cpu_run(struct cpu *cpu)
                 alu(cpu, ALU_MUL, operandA, operandB);
                 cpu->pc += 3;
                 break;
+            case PUSH:
+                push(cpu, operandA) ;
+                break ;
+            case POP:
+                pop(cpu, operandA) ;
+                break ;
                 
             case HLT:
                 running = 0;
