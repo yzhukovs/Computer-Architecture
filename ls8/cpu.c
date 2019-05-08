@@ -11,18 +11,57 @@
 void cpu_ram_write(struct cpu *cpu, unsigned char adrs, unsigned char value){
     cpu->ram[adrs] = value;
 }
+unsigned char cpu_ram_read(struct cpu *cpu, unsigned char adrs) {
+    return cpu->ram[adrs];
+}
+
+void push(struct cpu *cpu, unsigned char reg_to_push)
+{
+    // R7 is where the stack pointer
+    
+    
+    // Decrement the Stack Pointer
+    cpu->reg[7]--;
+    
+    unsigned char val_to_push = cpu->reg[reg_to_push];
+    // Decrement the size of the stack
+   // Copy the value in the given register to the address pointed to by `SP`
+    cpu_ram_write(cpu, cpu->reg[7], val_to_push);
+    
+    // Move the PC to the next instruction. it's 2 command operation
+    cpu->pc += 2;
+}
+void pop(struct cpu *cpu, unsigned char reg_to_pop)
+{
+    // Get the value from the Stack Pointer address to the given register.
+    // Increment Stack Pointer
+    
+    // Get address out of register 7
+    unsigned char sp_address = cpu->reg[7];
+    // Get the value out of that address
+    unsigned char val_to_pop = cpu_ram_read(cpu, sp_address);
+    
+    cpu->reg[reg_to_pop] = val_to_pop;
+    
+    // Increment the size of the stack
+    cpu->reg[7]++;
+    
+    // Move the PC to the next instruction. it's 2 command operation
+    cpu->pc += 2;
+}
+
 
 void cpu_load(struct cpu *cpu, char *load_program)
 {
-    char data[DATA_LEN] = {
+   // char data[DATA_LEN] = {
         // From print8.ls8
-        0b10000010, // LDI R0,8
-        0b00000000,
-        0b00001000,
-        0b01000111, // PRN R0
-        0b00000000,
-        0b00000001  // HLT
-    };
+      //  0b10000010, // LDI R0,8
+       // 0b00000000,
+       // 0b00001000,
+        // 0b01000111, // PRN R0
+        // 0b00000000,
+        // 0b00000001  // HLT
+   // };
     
    int address = 0;
 //
@@ -70,6 +109,7 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
     switch (op) {
         case ALU_MUL:
+            cpu->reg[regA] = (cpu->reg[regA] * cpu ->reg[regB]) & 0xFF ;
             // TODO
             break;
             
@@ -77,9 +117,6 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
     }
 }
 
-unsigned char cpu_ram_read(struct cpu *cpu, unsigned char adrs) {
-    return cpu->ram[adrs];
-}
 
 /**
  * Run the CPU
@@ -107,6 +144,11 @@ void cpu_run(struct cpu *cpu)
                 printf("%d\n", cpu->reg[operandA]);
                 cpu->pc += 2;
                 break;
+            case MUL:
+                alu(cpu, ALU_MUL, operandA, operandB);
+                cpu->pc += 3;
+                break;
+                
             case HLT:
                 running = 0;
                 break;
