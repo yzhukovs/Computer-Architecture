@@ -15,6 +15,23 @@ unsigned char cpu_ram_read(struct cpu *cpu, unsigned char adrs) {
     return cpu->ram[adrs];
 }
 
+void call(struct cpu *cpu, unsigned char reg_addrs_to_jump )
+{
+    // make space on the stack to store the address
+    cpu->reg[7]--;  // stack gets bigger grows down
+    cpu_ram_write(cpu, cpu->reg[7], cpu->pc + 2);
+    
+    cpu->pc = cpu->reg[reg_addrs_to_jump];
+    
+}
+
+void ret(struct cpu *cpu) {
+    cpu->reg[7]++;
+    //poping out and incrementing size of stack
+    cpu->pc = cpu_ram_read(cpu, cpu->reg[7]); //return address out of stack
+}
+
+
 void push(struct cpu *cpu, unsigned char reg_to_push)
 {
     // R7 is where the stack pointer
@@ -156,6 +173,8 @@ void cpu_run(struct cpu *cpu)
             case POP:
                 pop(cpu, operandA) ;
                 break ;
+                
+        
                 
             case HLT:
                 running = 0;
