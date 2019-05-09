@@ -51,6 +51,8 @@ void pop(struct cpu *cpu, unsigned char reg_to_pop)
 }
 
 
+
+
 void cpu_load(struct cpu *cpu, char *load_program)
 {
    // char data[DATA_LEN] = {
